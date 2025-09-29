@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AskME — Консультант для поиска и выбора товаров.">
+    <title>AskME Консультант</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="gradient-background">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm animate-fadeIn">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="AskME" width="40" height="40" class="me-2">
+            <span class="fw-bold">AskME</span>
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5 animate-slideUp">
+    <div class="text-center mb-5">
+        <h1 class="title">🔍 AskMe Консультант</h1>
+        <p class="subtitle">Быстрая помощь в выборе товаров</p>
+    </div>
+
+    <!-- Форма поиска товара -->
+    <form method="POST" action="/">
+        <div class="mb-4">
+            <input type="text" id="product_name" name="product_name" class="form-control form-control-lg"
+                   placeholder="Введите название товара..." value="{{ product_name }}" autocomplete="off" required>
+            <!-- Выпадающий список для автозаполнения -->
+            <div id="autocomplete-dropdown" class="autocomplete-dropdown list-group" style="display:none;"></div>
+        </div>
+
+        <div class="mb-4 d-flex justify-content-center">
+            <button type="button" onclick="startRecognition()" class="btn btn-lg btn-secondary" id="voiceButton">
+                🎙 Говорить
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <select id="product_select" class="form-select form-select-lg"
+                    onchange="document.getElementById('product_name').value = this.value;">
+                <option value="">-- Выберите товар из базы --</option>
+                {% for product in products %}
+                    <option value="{{ product['name'] }}">{{ product['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="d-grid">
+            <button class="btn btn-primary btn-lg" type="submit">🔎 Найти товар</button>
+        </div>
+    </form>
+
+    <!-- Вывод совпадений товаров -->
+    {% if matches %}
+    <div class="mt-5">
+        {% if matches|length > 1 %}
+            <h4 class="mb-3 text-white">Выберите товар:</h4>
+            <form method="POST" action="/ask_more">
+                <div class="list-group">
+                    {% for item in matches %}
+                        <label class="list-group-item list-group-item-action bg-light shadow-sm rounded mb-3">
+                            <input class="form-check-input me-1" type="radio" name="product_name" value="{{ item['name'] }}" required>
+                            <strong>{{ item['name'] }}</strong> — {{ item['description'] }} ({{ item['price'] }} ₸, {{ item['stock'] }} шт.)
+                        </label>
+                    {% endfor %}
+                </div>
+                <div class="input-group input-group-lg mt-4">
+                    <input type="text" name="user_question" class="form-control" placeholder="Введите ваш дополнительный вопрос..." required>
+                    <button class="btn btn-success" type="submit">💬 Спросить</button>
+                </div>
+            </form>
+        {% else %}
+            <div class="card mb-4 animate-fadeIn shadow-lg">
+                <div class="card-body">
+                    <h4 class="card-title text-dark">{{ matches[0]['name'] }}</h4>
+                    <p class="card-text text-dark">{{ matches[0]['description'] }}</p>
+                    <p class="card-text text-dark">💵 Цена: {{ matches[0]['price'] }} ₸</p>
+                    <p class="card-text text-dark">📦 В наличии: {{ matches[0]['stock'] }} шт.</p>
+                </div>
+            </div>
+            <form method="POST" action="/ask_more">
+                <input type="hidden" name="product_name" value="{{ matches[0]['name'] }}">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="user_question" class="form-control" placeholder="Введите ваш дополнительный вопрос..." required>
+                    <button class="btn btn-success" type="submit">💬 Спросить</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+    {% elif product_name and is_search %}
+    <div class="card mt-4 border-danger shadow-sm animate-fadeIn">
+        <div class="card-body text-danger">
+            <h5 class="card-title">❌ Товары не найдены</h5>
+            <p class="card-text">По запросу «<b>{{ product_name }}</b>» ничего не найдено.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if answer %}
+    <div id="answerCard" class="card mt-4 shadow-lg animate-fadeIn">
+        <div class="card-body">
+            <h5 class="card-title mb-3">💬 Ответ консультанта</h5>
+            <p class="card-text">{{ answer|safe }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Передаем данные о товарах из Python в JavaScript
+    const productsList =   products | tojson ; // Заменить на передаваемые данные
+
+    const productInput = document.getElementById('product_name');
+    const dropdown = document.getElementById('autocomplete-dropdown');
+
+    // Поиск товаров в базе по введенному названию
+    productInput.addEventListener('input', function () {
+        const value = this.value.toLowerCase();
+        dropdown.innerHTML = '';  // очищаем выпадающий список
+        if (value.length > 0) {
+            const matches = productsList.filter(p => p.name.toLowerCase().includes(value));
+            if (matches.length > 0) {
+                dropdown.style.display = 'block';  // Показываем выпадающий список
+                matches.forEach(product => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item list-group-item-action';
+                    item.textContent = product.name;
+                    item.onclick = function () {
+                        productInput.value = this.textContent;
+                        dropdown.style.display = 'none';  // Скрываем выпадающий список
+                    };
+                    dropdown.appendChild(item);  // Добавляем элемент в выпадающий список
+                });
+            } else {
+                dropdown.style.display = 'none';  // Скрыть, если нет совпадений
+            }
+        } else {
+            dropdown.style.display = 'none';  // Скрыть, если поле пустое
+        }
+    });
+
+    // Функция голосового ввода
+    function startRecognition() {
+        const voiceButton = document.getElementById('voiceButton');
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            alert("Ваш браузер не поддерживает голосовое распознавание.");
+            return;
+        }
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ru-RU';
+        recognition.start();
+
+        voiceButton.innerHTML = '🔄 Идет распознавание...';
+
+        recognition.onresult = event => {
+            productInput.value = event.results[0][0].transcript;
+            voiceButton.innerHTML = '🎙 Говорить';  // Возвращаем кнопку в исходное состояние
+        };
+
+        recognition.onerror = function () {
+            voiceButton.innerHTML = '❌ Ошибка';
+            setTimeout(() => {
+                voiceButton.innerHTML = '🎙 Говорить';
+            }, 2000);
+        };
+    }
+</script>
+
+</body>
+</html>

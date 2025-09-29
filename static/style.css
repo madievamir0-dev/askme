@@ -1,0 +1,238 @@
+/* Основной фон */
+body, html {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #2c3e50, #4ca1af); /* Яркий градиент */
+    color: #ffffff;
+    overflow-x: hidden;
+    margin: 0;
+}
+
+/* Навигация */
+.navbar {
+    background-color: #34495e !important; /* Темный фон */
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-brand img {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.1);
+}
+
+/* Заголовки */
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    animation: fadeIn 1.5s ease;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #b2bec3;
+    margin-bottom: 2rem;
+    animation: fadeIn 2s ease;
+}
+
+/* Формы и инпуты */
+input.form-control, select.form-select {
+    border-radius: 50px; /* Круглые углы */
+    padding: 15px;
+    background-color: #ffffff;
+    color: #2d3436;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+input.form-control:focus, select.form-select:focus {
+    box-shadow: 0 0 15px #74b9ff;
+    border-color: #74b9ff;
+}
+
+input.form-control::placeholder {
+    color: #95a5a6;
+}
+
+/* Кнопки */
+button.btn-primary, button.btn-success {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 14px 30px;
+    transition: all 0.3s ease;
+    width: 100%;  /* Увеличиваем ширину кнопок для удобства */
+}
+
+button.btn-primary {
+    background-color: #0984e3;
+    border: none;
+}
+
+button.btn-primary:hover {
+    background-color: #74b9ff;
+    transform: scale(1.05);
+}
+
+button.btn-success {
+    background-color: #00b894;
+    border: none;
+}
+
+button.btn-success:hover {
+    background-color: #55efc4;
+    transform: scale(1.05);
+}
+
+/* Карточки */
+.card {
+    background-color: #ffffff;
+    color: #2d3436;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    transition: 0.4s ease;
+    margin-bottom: 30px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Загрузочные индикаторы */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    animation: fadeIn 1s ease forwards;
+    transition: opacity 0.5s ease;
+}
+
+.loading-circle {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #74b9ff;
+    border-top: 6px solid #0984e3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #dfe6e9;
+    font-weight: 500;
+}
+
+/* Списки */
+.list-group-item {
+    background-color: #f1f2f6;
+    color: #2d3436;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    padding: 15px;
+}
+
+.list-group-item:hover {
+    background-color: #dcdde1;
+    cursor: pointer;
+}
+
+/* Выпадающее меню */
+.autocomplete-dropdown {
+    position: absolute;
+    width: 100%;
+    background-color: #ffffff;
+    color: #2d3436;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.autocomplete-dropdown .list-group-item {
+    cursor: pointer;
+}
+
+.autocomplete-dropdown .list-group-item:hover {
+    background-color: #dcdde1;
+}
+
+/* Анимации */
+.animate-fadeIn {
+    animation: fadeIn 1.2s ease forwards;
+}
+
+.animate-slideUp {
+    animation: slideUp 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    button.btn-primary, button.btn-success {
+        padding: 12px 25px;
+    }
+
+    .list-group-item {
+        font-size: 0.9rem;
+    }
+
+    .loading-text {
+        font-size: 1rem;
+    }
+
+    .navbar {
+        border-radius: 0;
+    }
+
+    .autocomplete-dropdown {
+        width: 95%;
+        margin: 0 2.5%;
+    }
+
+    /* Уменьшаем кнопки на мобильных */
+    button.btn-primary, button.btn-success {
+        padding: 12px 20px;
+    }
+}
